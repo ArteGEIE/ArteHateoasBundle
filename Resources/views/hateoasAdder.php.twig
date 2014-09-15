@@ -1,0 +1,104 @@
+<?php
+
+namespace Arte\Bundle\HateoasBundle\Adder\Generated;
+
+use Arte\Bundle\HateoasBundle\Adder\AbstractAdder;
+use Hateoas\Model\Link;
+use Hateoas\Model\Embedded;
+
+/**
+ * Hateoas adder for "{{ type }}"
+ */
+class {{ className }} extends AbstractAdder
+{
+    public function add($object, $visitor)
+    {
+{% if relationsRepository.getRelations(object)|length > 0 %}
+        $links = array();
+        $embeddeds = array();
+
+        {% for relation in relationsRepository.getRelations(object) %}
+            {%- set href = relation.href() -%}
+            {%- set exclusion = relation.exclusion() -%}
+            {%- set embedded = relation.embedded() -%}
+
+            {# embeds #}
+            {%- if null != embedded %}
+            {%- set embeddedExclusion = embedded.exclusion() -%}
+
+            {% if (exclude_if_exists(exclusion)) %}
+        if (!{{ expression_dump(exclusion.excludeIf()) }}) {
+            {% endif %}
+
+            {% if (exclude_if_exists(embeddedExclusion)) %}
+        if (!{{ expression_dump(embeddedExclusion.excludeIf()) }}) {
+            {% endif %}
+
+            {% if (exclude_if_exists(exclusion) or exclude_if_exists(embeddedExclusion) or not (should_skip_property(exclusion, context) or should_skip_property(embeddedExclusion, context))) %}
+                // {{ relation.name }}
+                $rel  = {{ expression_compile(relation.name()) }};
+                $data = {{ expression_compile(relation.embedded().content()) }};
+                $embeddeds[] = new Embedded($rel, $data);
+            {% endif %}
+
+            {% if (exclude_if_exists(embeddedExclusion)) %}
+        }
+            {% endif %}
+
+            {% if (exclude_if_exists(exclusion)) %}
+        }
+            {% endif %}
+            {%- endif %}
+
+
+            {# links #}
+            {%- if null != href %}
+
+            {% if (exclude_if_exists(exclusion)) %}
+        if (!{{ expression_dump(exclusion.excludeIf()) }}) {
+            {% endif %}
+
+            {% if (exclude_if_exists(exclusion) or not should_skip_property(exclusion, context)) %}
+            // {{ relation.name }}
+
+            {% if href.parameters() is iterable %}
+                    {% embed [
+                        'ArteHateoasBundle::iterable.php.twig'
+                    ] ignore missing with { 'iterable': href.parameters() } %}
+                        {% block assign %}$parameters = {% endblock %}
+                    {% endembed %}
+            {% else -%}
+                    $parameters = {{ expression_compile(href.parameters()) }};
+            {%- endif %}
+
+            {% if href.generator() -%}
+                    $href = $this->urlGeneratorRegistry->get('{{ href.generator() }}')->generate({{ expression_dump(href.name()) }}, $parameters, {{ expression_dump_bool(href.isAbsolute()) }});
+            {% else -%}
+                    $href = $this->urlGeneratorRegistry->get()->generate({{ expression_dump(href.name()) }}, $parameters, {{ expression_dump_bool(href.isAbsolute()) }});
+            {%- endif %}
+            {% embed [
+                'ArteHateoasBundle::iterable.php.twig'
+            ] ignore missing with { 'iterable': relation.attributes() } %}
+                {% block assign %}$attributes ={% endblock %}
+            {% endembed %}
+            $links[] = new Link('{{ expression_compile(relation.name) }}', $href, $attributes);
+            {% endif %}
+
+            {% if (exclude_if_exists(exclusion)) %}
+        }
+            {% endif %}
+            {%- endif %}
+
+        {%- endfor %}
+
+
+        if (count($links) > 0) {
+            $this->jsonSerializer->serializeLinks($links, $visitor, $this->context);
+        }
+
+        if (count($embeddeds) > 0) {
+            $this->jsonSerializer->serializeEmbeddeds($embeddeds, $visitor, $this->context);
+        }
+{% endif %}
+    }
+}

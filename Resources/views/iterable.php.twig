@@ -1,0 +1,9 @@
+
+            {% block assign %}return{% endblock %} array(
+            {% for key, parameter in iterable %}
+        '{{ key }}' => {%- if is_expression(parameter) -%}
+                    {{ expression_compile(parameter) }}
+                {%- else -%}
+                    '{{ parameter }}'
+                {%- endif -%},
+            {% endfor %});
