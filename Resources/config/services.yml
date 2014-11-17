@@ -1,5 +1,6 @@
 parameters:
     arte.hateoas.adder.registry.class: Arte\Bundle\HateoasBundle\Adder\AdderRegistry
+    arte.hateoas.adder.cache.class: Arte\Bundle\HateoasBundle\Generator\Cache
     arte.hateoas.adder.generator.class: Arte\Bundle\HateoasBundle\Generator\Generator
     arte.hateoas.twig.expression_evaluator_extension.class: Arte\Bundle\HateoasBundle\Twig\ExpressionEvaluatorExtension
     arte.hateoas.event_subscriber.json.class: Arte\Bundle\HateoasBundle\EventSubscriber\JsonEventSubscriber
@@ -8,16 +9,24 @@ services:
     arte.hateoas.adder.registry:
         class: "%arte.hateoas.adder.registry.class%"
         arguments:
-            - "@arte.hateoas.adder.generator"
+            - "@arte.hateoas.adder.cache"
             - "@hateoas.generator.registry"
             - "@hateoas.serializer.json_hal"
+            - ""
             - false
+
+    arte.hateoas.adder.cache:
+        class: "%arte.hateoas.adder.cache.class%"
+        arguments:
+            - ""
+            - false
+        calls:
+            - [ setContainer, [ @service_container ] ]
 
     arte.hateoas.adder.generator:
         class: "%arte.hateoas.adder.generator.class%"
         arguments:
             - "@twig"
-            - ""
             - "@hateoas.serializer.json_hal"
             - "@hateoas.links_factory"
             - "@hateoas.embeds_factory"
@@ -26,7 +35,6 @@ services:
             - "@hateoas.configuration.relations_repository"
             - "@hateoas.serializer.exclusion_manager"
             - "@bazinga_hateoas.expression_language"
-            - false
 
     arte.hateoas.twig.expression_evaluator_extension:
         class: "%arte.hateoas.twig.expression_evaluator_extension.class%"
