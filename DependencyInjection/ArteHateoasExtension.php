@@ -28,11 +28,13 @@ class ArteHateoasExtension extends Extension
         if ('file' === $config['adder']['cache']) {
             $container
                 ->getDefinition('arte.hateoas.adder.registry')
-                ->replaceArgument(3, $config['adder']['always_generate']);
+                ->replaceArgument(3, $config['adder']['file_cache']['dir'])
+                ->replaceArgument(4, $config['adder']['always_generate']);
+
             $container
-                ->getDefinition('arte.hateoas.adder.generator')
-                ->replaceArgument(1, $config['adder']['file_cache']['dir'])
-                ->replaceArgument(10, $config['adder']['always_generate']);
+                ->getDefinition('arte.hateoas.adder.cache')
+                ->replaceArgument(0, $config['adder']['file_cache']['dir'])
+                ->replaceArgument(1, $config['adder']['always_generate']);
 
             $nsDir = $container->getParameterBag()->resolveValue($config['adder']['file_cache']['dir']);
             $addersDir = $nsDir.'/Arte/Bundle/HateoasBundle/Adder/Generated';

@@ -2,8 +2,7 @@
 
 namespace Arte\Bundle\HateoasBundle\Adder;
 
-use Arte\Bundle\HateoasBundle\Adder\AbstractAdder;
-use Arte\Bundle\HateoasBundle\Generator\Generator;
+use Arte\Bundle\HateoasBundle\Generator\GeneratorInterface;
 use Hateoas\UrlGenerator\UrlGeneratorRegistry;
 use Hateoas\Serializer\JsonSerializerInterface;
 
@@ -16,12 +15,13 @@ class AdderRegistry
     protected $loader;
     protected $alwaysGenerate;
 
-    public function __construct(Generator $generator, UrlGeneratorRegistry $urlGeneratorRegistry, JsonSerializerInterface $jsonSerializer, $alwaysGenerate = false)
+    public function __construct(GeneratorInterface $generator,
+        UrlGeneratorRegistry $urlGeneratorRegistry, JsonSerializerInterface $jsonSerializer, $outputDir = "", $alwaysGenerate = false)
     {
         $this->generator = $generator;
         $this->urlGeneratorRegistry = $urlGeneratorRegistry;
         $this->jsonSerializer = $jsonSerializer;
-        $this->registerClassloader($generator->getOutputDir());
+        $this->registerClassloader($outputDir);
         $this->alwaysGenerate = $alwaysGenerate;
     }
 
@@ -33,7 +33,7 @@ class AdderRegistry
     protected function load($type, $object, $context)
     {
         $className = $this->getClassname($type);
-        $fullClassName = Generator::ADDERS_NAMESPACE.$className;
+        $fullClassName = GeneratorInterface::ADDERS_NAMESPACE.$className;
 
         if (!class_exists($fullClassName) || true === $this->alwaysGenerate) {
             if ($fullPath = $this->generator->generate($type, $object, $className, $context)) {
@@ -49,7 +49,7 @@ class AdderRegistry
     protected function registerClassloader($addersDir)
     {
         $this->loader = function($class) use ($addersDir) {
-            if (0 === strpos($class, Generator::ADDERS_NAMESPACE)) {
+            if (0 === strpos($class, GeneratorInterface::ADDERS_NAMESPACE)) {
                 $fileName = $addersDir . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
 
                 if (file_exists($fileName)) {
