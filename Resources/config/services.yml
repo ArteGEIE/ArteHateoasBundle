@@ -14,6 +14,7 @@ services:
             - "@hateoas.serializer.json_hal"
             - ""
             - false
+            - "@service_container"
 
     arte.hateoas.adder.cache:
         class: "%arte.hateoas.adder.cache.class%"
