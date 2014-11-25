@@ -5,6 +5,7 @@ namespace Arte\Bundle\HateoasBundle\Adder;
 use Arte\Bundle\HateoasBundle\Generator\GeneratorInterface;
 use Hateoas\UrlGenerator\UrlGeneratorRegistry;
 use Hateoas\Serializer\JsonSerializerInterface;
+use Symfony\Component\DependencyInjection\Container;
 
 class AdderRegistry
 {
@@ -14,15 +15,17 @@ class AdderRegistry
     protected $jsonSerializer;
     protected $loader;
     protected $alwaysGenerate;
+    protected $container;
 
     public function __construct(GeneratorInterface $generator,
-        UrlGeneratorRegistry $urlGeneratorRegistry, JsonSerializerInterface $jsonSerializer, $outputDir = "", $alwaysGenerate = false)
+        UrlGeneratorRegistry $urlGeneratorRegistry, JsonSerializerInterface $jsonSerializer, $outputDir = "", $alwaysGenerate = false, Container $container)
     {
         $this->generator = $generator;
         $this->urlGeneratorRegistry = $urlGeneratorRegistry;
         $this->jsonSerializer = $jsonSerializer;
         $this->registerClassloader($outputDir);
         $this->alwaysGenerate = $alwaysGenerate;
+        $this->container = $container;
     }
 
     protected function getClassname($type)
@@ -37,10 +40,10 @@ class AdderRegistry
 
         if (!class_exists($fullClassName) || true === $this->alwaysGenerate) {
             if ($fullPath = $this->generator->generate($type, $object, $className, $context)) {
-                return new $fullClassName($this->urlGeneratorRegistry, $this->jsonSerializer, $context);
+                return new $fullClassName($this->urlGeneratorRegistry, $this->jsonSerializer, $context, $this->container);
             }
         } else {
-            return new $fullClassName($this->urlGeneratorRegistry, $this->jsonSerializer, $context);
+            return new $fullClassName($this->urlGeneratorRegistry, $this->jsonSerializer, $context, $this->container);
         }
 
         return false;
