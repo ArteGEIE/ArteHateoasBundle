@@ -21,9 +21,10 @@ abstract class AbstractAdder
         $this->container = $container;
     }
 
-    public abstract function add($object, $visitor);
+    abstract public function add($object, $visitor);
 
-    public function get($service) {
+    public function get($service)
+    {
         return $this->container->get($service);
     }
 }

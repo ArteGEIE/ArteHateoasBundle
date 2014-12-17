@@ -30,7 +30,7 @@ class Generator implements GeneratorInterface
         LinksFactory $linksFactory,
         EmbeddedsFactory $embeddedsFactory,
         InlineDeferrer $embeddedsInlineDeferrer,
-        InlineDeferrer $linksInleDeferrer,
+        InlineDeferrer $linksInlineDeferrer,
         RelationsRepository $relationsRepository,
         ExclusionManager $exclusionManager,
         ExpressionLanguage $expressionLanguage
@@ -40,7 +40,7 @@ class Generator implements GeneratorInterface
         $this->linksFactory            = $linksFactory;
         $this->embeddedsFactory        = $embeddedsFactory;
         $this->embeddedsInlineDeferrer = $embeddedsInlineDeferrer;
-        $this->linksInlineDeferrer     = $linksInleDeferrer;
+        $this->linksInlineDeferrer     = $linksInlineDeferrer;
         $this->relationsRepository     = $relationsRepository;
         $this->exclusionManager        = $exclusionManager;
         $this->expressionLanguage      = $expressionLanguage;
