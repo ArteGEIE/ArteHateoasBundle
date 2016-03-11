@@ -1,3 +1,7 @@
+# Deprecated
+
+As of march 2016, this bundle is officialy deprecated.
+
 ArteHateoasBundle
 =================
 
